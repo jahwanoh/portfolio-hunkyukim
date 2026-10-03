@@ -1,13 +1,13 @@
-import { Project, projects } from "@/lib/content";
+import { Project, getProjects } from "@/lib/content";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Media } from "@/components/media";
 import { NavigationButton } from "@/components/navigation-button";
 import { ArtworkCaption } from "@/components/artwork-caption";
 
-export const dynamicParams = false;
-
-export function generateStaticParams() {
+// New exhibitions added in Sanity render on first visit
+export async function generateStaticParams() {
+  const projects = await getProjects();
   return projects.map((project) => ({ slug: project._slug }));
 }
 
@@ -17,6 +17,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const projects = await getProjects();
   const match = projects.find((project) => project._slug === slug);
 
   if (!match) {
@@ -26,14 +27,20 @@ export async function generateMetadata({
     };
   }
 
-  const cover = match.media[0];
+  const cover = match.cover;
 
   return {
     title: match._title,
     description: match.description[0],
     openGraph: cover
       ? {
-          images: [{ url: cover.url, width: cover.width, height: cover.height }],
+          images: [
+            {
+              url: `${cover.url}?w=1200&fm=jpg&q=80`,
+              width: 1200,
+              height: Math.round((cover.height / cover.width) * 1200),
+            },
+          ],
         }
       : undefined,
   };
@@ -45,6 +52,7 @@ export default async function Page({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const projects = await getProjects();
 
   const currentProjectIndex = projects.findIndex(
     (project) => project._slug === slug

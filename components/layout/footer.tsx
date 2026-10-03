@@ -1,9 +1,11 @@
-import { info } from "@/lib/content";
+import { getInfo } from "@/lib/content";
 import React from "react";
 import { ContactItem } from "./contact-item";
 import { SocialLinks } from "../social-links";
 
-export const Footer = () => {
+export const Footer = async () => {
+  const info = await getInfo();
+
   return (
     <footer className="px-sides flex flex-col lg:grid grid-cols-12 gap-6 lg:gap-gap py-12">
       <SocialLinks links={info.links} className="col-span-3" />

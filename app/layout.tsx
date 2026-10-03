@@ -2,10 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
 import { ViewTransitions } from "next-view-transitions"
-import { info } from "@/lib/content"
+import { getInfo } from "@/lib/content"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,12 +15,22 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 })
 
-export const metadata: Metadata = {
-  title: {
-    default: info.title,
-    template: `%s | ${info.title}`,
-  },
-  description: `${info.title} — ${info.subtitle}`,
+// Absolute base for link-preview images (Vercel sets this automatically)
+const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : "http://localhost:3000"
+
+export async function generateMetadata(): Promise<Metadata> {
+  const info = await getInfo()
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title: {
+      default: info.title,
+      template: `%s | ${info.title}`,
+    },
+    description: `${info.title} — ${info.subtitle}`,
+  }
 }
 
 export default function RootLayout({
@@ -34,11 +42,7 @@ export default function RootLayout({
     <ViewTransitions>
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <div className="2xl:max-w-[1920px] mx-auto">
-            <Header />
-            {children}
-            <Footer />
-          </div>
+          {children}
         </body>
       </html>
     </ViewTransitions>

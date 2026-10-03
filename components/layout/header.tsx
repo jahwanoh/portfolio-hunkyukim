@@ -1,4 +1,4 @@
-import { info } from "@/lib/content";
+import { getInfo } from "@/lib/content";
 import React from "react";
 import { HeaderLink } from "./link";
 import { Contact } from "./contact";
@@ -20,7 +20,9 @@ const links = [
   },
 ];
 
-export const Header = () => {
+export const Header = async () => {
+  const info = await getInfo();
+
   return (
     <header className="px-sides flex justify-between lg:grid grid-cols-12 gap-gap h-header items-center sticky top-0 z-50 bg-background">
       <TransitionTrigger

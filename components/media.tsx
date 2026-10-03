@@ -1,5 +1,11 @@
-import { ImageMedia } from "@/lib/content";
-import Image from "next/image";
+"use client";
+
+import type { ImageMedia } from "@/lib/content";
+import Image, { type ImageLoader } from "next/image";
+
+// Sanity's image CDN resizes on the fly, so request only the width needed
+const sanityLoader: ImageLoader = ({ src, width, quality }) =>
+  `${src}?w=${width}&q=${quality ?? 80}&fit=max&auto=format`;
 
 interface MediaProps {
   media: ImageMedia;
@@ -16,10 +22,12 @@ export function Media({
   alt,
   className,
   sizes,
-  quality = 100,
+  quality = 85,
   priority = false,
   fill = false,
 }: MediaProps) {
+  const isSanity = media.url.startsWith("https://cdn.sanity.io/");
+
   return (
     <Image
       src={media.url}
@@ -31,6 +39,10 @@ export function Media({
       sizes={sizes}
       quality={quality}
       priority={priority}
+      loader={isSanity ? sanityLoader : undefined}
+      unoptimized={!isSanity}
+      placeholder={media.lqip ? "blur" : "empty"}
+      blurDataURL={media.lqip}
     />
   );
 }

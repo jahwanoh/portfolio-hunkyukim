@@ -1,9 +1,15 @@
-import { featuredWork, info, projects } from "@/lib/content";
+import { getFeaturedWork, getInfo, getProjects } from "@/lib/content";
 import { SocialLinks } from "@/components/social-links";
 import { ProjectItem } from "@/components/project-item";
 import { FeaturedWork } from "@/components/featured-work";
 
-export default function Home() {
+export default async function Home() {
+  const [info, projects, featuredWork] = await Promise.all([
+    getInfo(),
+    getProjects(),
+    getFeaturedWork(),
+  ]);
+
   return (
     <main className="px-sides mb-24">
       {/* hero section */}
@@ -22,9 +28,11 @@ export default function Home() {
       {/* showcase section */}
       <section className="pt-24">
         {/* featured work */}
-        <div className="mb-12">
-          <FeaturedWork media={featuredWork.media} project={featuredWork.project} />
-        </div>
+        {featuredWork && (
+          <div className="mb-12">
+            <FeaturedWork media={featuredWork.media} project={featuredWork.project} />
+          </div>
+        )}
 
         {/* exhibitions */}
         {projects.length > 0 && (

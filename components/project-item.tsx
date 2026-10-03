@@ -9,9 +9,7 @@ interface ProjectItemProps {
 }
 
 export function ProjectItem({ project, className }: ProjectItemProps) {
-  const cover =
-    project.media.find((media) => media.alt === project.cover) ??
-    project.media[0];
+  const cover = project.cover;
 
   const details = [project.year, ...project.category, project.venue].filter(
     Boolean
