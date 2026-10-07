@@ -4,7 +4,12 @@ import { notFound } from "next/navigation";
 import { Media } from "@/components/media";
 import { NavigationButton } from "@/components/navigation-button";
 import { ArtworkCaption } from "@/components/artwork-caption";
-import { InstallationViews } from "@/components/installation-views";
+import {
+  InstallationCaption,
+  InstallationGrid,
+  InstallationView,
+  splitInstallationViews,
+} from "@/components/installation-views";
 
 // New exhibitions added in Sanity render on first visit
 export async function generateStaticParams() {
@@ -64,6 +69,16 @@ export default async function Page({
     return notFound();
   }
 
+  const { beside, grid } = splitInstallationViews(project);
+
+  const description = (
+    <div className="text-base leading-[1.2] font-semibold text-pretty space-y-4">
+      {project.description.map((paragraph, index) => (
+        <p key={index}>{paragraph}</p>
+      ))}
+    </div>
+  );
+
   const prevProjectSlug = projects[currentProjectIndex - 1]?._slug;
   const nextProjectSlug = projects[currentProjectIndex + 1]?._slug;
 
@@ -73,23 +88,36 @@ export default async function Page({
         {project._title}
       </h1>
 
-      <div className="flex flex-col md:grid grid-cols-12 gap-6 md:gap-gap">
-        <div className="col-span-5">
-          <ProjectAttributes project={project} />
+      {/* Odd number of installation views: the first sits beside the description */}
+      {beside ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          <div className="flex flex-col gap-8">
+            <ProjectAttributes project={project} />
+            {description}
+          </div>
+          <InstallationView view={beside} />
         </div>
-        <div className="col-span-6 text-base leading-[1.2] font-semibold text-pretty space-y-4">
-          {project.description.map((paragraph, index) => (
-            <p key={index}>{paragraph}</p>
-          ))}
+      ) : (
+        <div className="flex flex-col md:grid grid-cols-12 gap-6 md:gap-gap">
+          <div className="col-span-5">
+            <ProjectAttributes project={project} />
+          </div>
+          <div className="col-span-6">{description}</div>
         </div>
-      </div>
+      )}
 
-      <InstallationViews project={project} />
+      {grid.length > 0 && (
+        <div className={beside ? "mt-8" : "mt-16"}>
+          <InstallationGrid views={grid} />
+        </div>
+      )}
+      {project.installationViews.length > 0 && (
+        <InstallationCaption project={project} />
+      )}
 
       {/* Masonry gallery: artworks keep their original proportions */}
       {project.media.length > 0 && (
         <section className="mt-16">
-          <h2 className="text-subtitle font-semibold opacity-30 mb-6">Works</h2>
           <div className="columns-1 sm:columns-2 lg:columns-3 gap-8">
             {project.media.map((mediaItem) => (
               <figure key={mediaItem.url} className="break-inside-avoid mb-8">

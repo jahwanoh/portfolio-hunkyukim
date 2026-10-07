@@ -1,13 +1,24 @@
-import type { Project } from "@/lib/content";
-import { cn } from "@/lib/utils";
+import type { ImageMedia, Project } from "@/lib/content";
 import { Media } from "./media";
 
-// 2 or 4 photos: 2 columns. 3 photos: the first one large, then two below.
-export function InstallationViews({ project }: { project: Project }) {
-  const views = project.installationViews;
-  if (views.length === 0) return null;
+const SIZES = "(min-width: 768px) 50vw, 100vw";
 
-  const featureFirst = views.length % 2 === 1;
+// With an odd number of photos the first one sits next to the description,
+// so every photo keeps the same half-width size (they're too low-res to enlarge).
+export function splitInstallationViews(project: Project) {
+  const views = project.installationViews;
+  return views.length % 2 === 1
+    ? { beside: views[0], grid: views.slice(1) }
+    : { beside: undefined, grid: views };
+}
+
+export function InstallationView({ view }: { view: ImageMedia }) {
+  return (
+    <Media media={view} className="w-full h-auto rounded-[6px]" sizes={SIZES} />
+  );
+}
+
+export function InstallationCaption({ project }: { project: Project }) {
   const caption = [
     `Installation view, ${project._title}`,
     project.venue,
@@ -17,30 +28,18 @@ export function InstallationViews({ project }: { project: Project }) {
     .join(", ");
 
   return (
-    <section className="mt-16">
-      <h2 className="text-subtitle font-semibold opacity-30 mb-6">
-        Installation views
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {views.map((view, index) => (
-          <Media
-            key={view.url}
-            media={view}
-            className={cn(
-              "w-full h-auto rounded-[6px]",
-              featureFirst && index === 0 && "md:col-span-2"
-            )}
-            sizes={
-              featureFirst && index === 0
-                ? "100vw"
-                : "(min-width: 768px) 50vw, 100vw"
-            }
-          />
-        ))}
-      </div>
-      <p className="text-xs text-zinc-500 tracking-wide mt-3">
-        {caption}.{project.photoCredit && ` ${project.photoCredit}`}
-      </p>
-    </section>
+    <p className="text-xs text-zinc-500 tracking-wide mt-3">
+      {caption}.{project.photoCredit && ` ${project.photoCredit}`}
+    </p>
+  );
+}
+
+export function InstallationGrid({ views }: { views: ImageMedia[] }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {views.map((view) => (
+        <InstallationView key={view.url} view={view} />
+      ))}
+    </div>
   );
 }
