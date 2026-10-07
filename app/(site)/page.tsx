@@ -36,11 +36,17 @@ export default async function Home() {
 
         {/* exhibitions */}
         {projects.length > 0 && (
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-8">
-            {projects.map((project) => (
-              <ProjectItem key={project._slug} project={project} />
-            ))}
-          </div>
+          <>
+            <h2 className="text-subtitle font-semibold opacity-30 mb-6">
+              Exhibitions
+            </h2>
+            {/* Row-based grid keeps newest → oldest reading left to right */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 items-start">
+              {projects.map((project) => (
+                <ProjectItem key={project._slug} project={project} />
+              ))}
+            </div>
+          </>
         )}
       </section>
     </main>

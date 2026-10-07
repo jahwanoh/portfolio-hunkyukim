@@ -11,15 +11,12 @@ interface ProjectItemProps {
 export function ProjectItem({ project, className }: ProjectItemProps) {
   const cover = project.cover;
 
-  const details = [project.year, ...project.category, project.venue].filter(
-    Boolean
-  );
 
   return (
     <TransitionTrigger
       href={`/projects/${project._slug}`}
       className={cn(
-        "group block break-inside-avoid mb-8 cursor-pointer",
+        "group block text-left cursor-pointer",
         className
       )}
     >
@@ -38,11 +35,22 @@ export function ProjectItem({ project, className }: ProjectItemProps) {
             <span className="text-muted-foreground">No media</span>
           </div>
         )}
-        <figcaption className="text-xs text-zinc-500 tracking-wide mt-3">
-          <em className="group-hover:text-foreground transition-colors">
+        {/* Exhibition title, then year and gallery */}
+        <figcaption className="mt-4">
+          <h3 className="text-lg md:text-xl font-black leading-tight text-balance group-hover:opacity-60 transition-opacity">
             {project._title}
-          </em>
-          {details.length > 0 && `, ${details.join(", ")}`}
+          </h3>
+          <p className="mt-1 text-sm md:text-base font-semibold">
+            <span>{project.year}</span>
+            {project.venue && (
+              <span className="opacity-50"> · {project.venue}</span>
+            )}
+          </p>
+          {project.category.length > 0 && (
+            <p className="mt-1 text-xs text-zinc-500 tracking-wide">
+              {project.category.join(", ")}
+            </p>
+          )}
         </figcaption>
       </figure>
     </TransitionTrigger>

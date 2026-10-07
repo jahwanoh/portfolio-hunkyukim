@@ -1,3 +1,4 @@
+import { orderRankField, orderRankOrdering } from "@sanity/orderable-document-list";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
 export const exhibition = defineType({
@@ -5,6 +6,8 @@ export const exhibition = defineType({
   title: "Exhibition",
   type: "document",
   fields: [
+    // Position set by dragging in the Exhibitions list; new exhibitions go on top
+    orderRankField({ type: "exhibition", newItemPosition: "before" }),
     defineField({
       name: "title",
       type: "string",
@@ -38,9 +41,23 @@ export const exhibition = defineType({
     }),
     defineField({
       name: "description",
-      description: "Separate paragraphs with an empty line",
+      description: "Press release or introduction. Separate paragraphs with an empty line",
       type: "text",
       rows: 10,
+    }),
+    defineField({
+      name: "installationViews",
+      title: "Installation views",
+      description: "Exhibition view photos (2–4 recommended). Shown between the description and the works.",
+      type: "array",
+      of: [defineArrayMember({ type: "image" })],
+      options: { layout: "grid" },
+    }),
+    defineField({
+      name: "photoCredit",
+      title: "Installation photo credit",
+      description: "e.g. Photo: Name. Courtesy of the artist and Perrotin",
+      type: "string",
     }),
     defineField({
       name: "artworks",
@@ -76,6 +93,7 @@ export const exhibition = defineType({
     }),
   ],
   orderings: [
+    orderRankOrdering,
     { title: "Year (newest)", name: "yearDesc", by: [{ field: "year", direction: "desc" }] },
   ],
   preview: {

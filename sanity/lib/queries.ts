@@ -18,7 +18,9 @@ const exhibition = /* groq */ `
   venue,
   category,
   description,
-  "artworks": artworks[defined(asset)]{ ${artwork} }
+  "artworks": artworks[defined(asset)]{ ${artwork} },
+  "installationViews": installationViews[defined(asset)]{ ${image} },
+  photoCredit
 `;
 
 export const settingsQuery = defineQuery(`
@@ -37,7 +39,7 @@ export const featuredWorkQuery = defineQuery(`
 `);
 
 export const exhibitionsQuery = defineQuery(`
-  *[_type == "exhibition" && defined(slug.current)] | order(year desc, _createdAt desc){ ${exhibition} }
+  *[_type == "exhibition" && defined(slug.current)] | order(orderRank asc, year desc){ ${exhibition} }
 `);
 
 export const cvQuery = defineQuery(`

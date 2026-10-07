@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Media } from "@/components/media";
 import { NavigationButton } from "@/components/navigation-button";
 import { ArtworkCaption } from "@/components/artwork-caption";
+import { InstallationViews } from "@/components/installation-views";
 
 // New exhibitions added in Sanity render on first visit
 export async function generateStaticParams() {
@@ -83,20 +84,25 @@ export default async function Page({
         </div>
       </div>
 
+      <InstallationViews project={project} />
+
       {/* Masonry gallery: artworks keep their original proportions */}
       {project.media.length > 0 && (
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-8 mt-16">
-          {project.media.map((mediaItem) => (
-            <figure key={mediaItem.url} className="break-inside-avoid mb-8">
-              <Media
-                media={mediaItem}
-                className="w-full h-auto rounded-[6px]"
-                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-              />
-              <ArtworkCaption media={mediaItem} />
-            </figure>
-          ))}
-        </div>
+        <section className="mt-16">
+          <h2 className="text-subtitle font-semibold opacity-30 mb-6">Works</h2>
+          <div className="columns-1 sm:columns-2 lg:columns-3 gap-8">
+            {project.media.map((mediaItem) => (
+              <figure key={mediaItem.url} className="break-inside-avoid mb-8">
+                <Media
+                  media={mediaItem}
+                  className="w-full h-auto rounded-[6px]"
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                />
+                <ArtworkCaption media={mediaItem} />
+              </figure>
+            ))}
+          </div>
+        </section>
       )}
 
       <div className="flex justify-between gap-gap mt-6 md:mt-12">

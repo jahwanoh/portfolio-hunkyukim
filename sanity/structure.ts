@@ -1,6 +1,7 @@
+import { orderableDocumentListDeskItem } from "@sanity/orderable-document-list";
 import type { StructureResolver } from "sanity/structure";
 
-export const structure: StructureResolver = (S) =>
+export const structure: StructureResolver = (S, context) =>
   S.list()
     .title("Content")
     .items([
@@ -8,7 +9,8 @@ export const structure: StructureResolver = (S) =>
         .title("Site Settings")
         .id("settings")
         .child(S.document().schemaType("settings").documentId("settings")),
-      S.documentTypeListItem("exhibition").title("Exhibitions"),
+      // Drag to reorder; this order is used on the site
+      orderableDocumentListDeskItem({ type: "exhibition", title: "Exhibitions", S, context }),
       S.listItem()
         .title("CV & Press")
         .id("cv")

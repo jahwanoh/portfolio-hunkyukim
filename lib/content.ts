@@ -40,6 +40,8 @@ export type Project = {
   // Thumbnail on the home page (defaults to the first work)
   cover?: ImageMedia;
   media: ImageMedia[];
+  installationViews: ImageMedia[];
+  photoCredit?: string;
 };
 
 export type AboutSection = {
@@ -84,6 +86,8 @@ type RawExhibition = {
   category?: string[] | null;
   description?: string | null;
   artworks?: RawArtwork[] | null;
+  installationViews?: NonNullable<RawImage>[] | null;
+  photoCredit?: string | null;
 };
 
 type RawSection = {
@@ -114,6 +118,12 @@ const toSection = (section: RawSection): AboutSection => ({
   })),
 });
 
+const toParagraphs = (text?: string | null) =>
+  (text ?? "")
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
 const toProject = (exhibition: RawExhibition): Project => {
   const artworks = exhibition.artworks ?? [];
   const cover = artworks.find((artwork) => artwork.cover) ?? artworks[0];
@@ -124,12 +134,14 @@ const toProject = (exhibition: RawExhibition): Project => {
     year: exhibition.year ?? "",
     venue: exhibition.venue ?? "",
     category: exhibition.category ?? [],
-    description: (exhibition.description ?? "")
-      .split(/\n\s*\n/)
-      .map((paragraph) => paragraph.trim())
-      .filter(Boolean),
+    description: toParagraphs(exhibition.description),
     cover: cover ? toArtwork(cover) : undefined,
     media: artworks.map(toArtwork),
+    installationViews: (exhibition.installationViews ?? []).map((view) => ({
+      ...toArtwork(view),
+      alt: `Installation view, ${exhibition.title}`,
+    })),
+    photoCredit: exhibition.photoCredit ?? undefined,
   };
 };
 
