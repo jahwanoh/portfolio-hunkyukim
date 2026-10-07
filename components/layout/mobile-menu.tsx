@@ -60,7 +60,7 @@ export const MobileMenu = ({ info }: MobileMenuProps) => {
           <TransitionTrigger
             href="/"
             variant="down"
-            className={"text-subtitle col-span-5 font-black uppercase"}
+            className={"text-subtitle col-span-5 font-black uppercase text-left min-w-0 truncate"}
             onClick={() => setOpen(false)}
           >
             {info.title}

@@ -28,7 +28,8 @@ export const Header = async () => {
       <TransitionTrigger
         href="/"
         className={
-          "text-subtitle col-span-4 font-black uppercase cursor-pointer w-max"
+          // Long names shorten with "…" on small screens so Menu stays visible
+          "text-subtitle col-span-4 font-black uppercase cursor-pointer text-left min-w-0 truncate lg:w-max lg:overflow-visible"
         }
       >
         <span>{info.title}</span>
@@ -49,7 +50,7 @@ export const Header = async () => {
       </nav>
 
       {/* Mobile Menu */}
-      <div className="lg:hidden justify-self-end">
+      <div className="lg:hidden justify-self-end shrink-0">
         <MobileMenu info={info} />
       </div>
 
