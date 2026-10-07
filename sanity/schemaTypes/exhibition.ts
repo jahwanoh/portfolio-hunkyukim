@@ -62,19 +62,12 @@ export const exhibition = defineType({
               type: "boolean",
               initialValue: false,
             }),
-            defineField({
-              name: "featured",
-              title: "Use as home page featured work",
-              description: "The large image at the top of the home page",
-              type: "boolean",
-              initialValue: false,
-            }),
           ],
           preview: {
-            select: { title: "title", year: "year", media: "asset", featured: "featured", cover: "cover" },
-            prepare: ({ title, year, media, featured, cover }) => ({
+            select: { title: "title", year: "year", media: "asset", cover: "cover" },
+            prepare: ({ title, year, media, cover }) => ({
               title: title || "Untitled",
-              subtitle: [year, cover && "Thumbnail", featured && "Featured"].filter(Boolean).join(" · "),
+              subtitle: [year, cover && "Thumbnail"].filter(Boolean).join(" · "),
               media,
             }),
           },

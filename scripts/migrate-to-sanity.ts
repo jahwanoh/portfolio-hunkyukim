@@ -46,37 +46,33 @@ const toSections = (sections: AboutSection[]) =>
 async function main() {
   const transaction = client.transaction();
 
-  transaction.createOrReplace({
-    _id: "settings",
-    _type: "settings",
-    title: info.title,
-    subtitle: info.subtitle,
-    heading: info.heading,
-    links: info.links.map((link, index) => ({
-      _key: `link${index}`,
-      _type: "link",
-      label: link._title,
-      url: link.link,
-    })),
-    email: info.email,
-    phone: info.phone,
-    address: info.address,
-  });
+  let featured: Record<string, unknown> | undefined;
 
   for (const project of projects) {
     console.log(`Exhibition: ${project._title}`);
     const artworks = [];
     for (const [index, media] of project.media.entries()) {
+      const asset = await uploadImage(media.url);
+      if (media === featuredWork.media) {
+        featured = {
+          _type: "featuredWork",
+          image: { _type: "image", asset },
+          title: media.title,
+          year: media.year,
+          medium: media.medium,
+          dimensions: media.dimensions,
+          exhibition: { _type: "reference", _ref: `exhibition-${project._slug}` },
+        };
+      }
       artworks.push({
         _key: `artwork${index}`,
         _type: "artwork",
-        asset: await uploadImage(media.url),
+        asset,
         title: media.title,
         year: media.year,
         medium: media.medium,
         dimensions: media.dimensions,
         cover: media.alt === project.cover,
-        featured: media === featuredWork.media,
       });
     }
 
@@ -92,6 +88,24 @@ async function main() {
       artworks,
     });
   }
+
+  transaction.createOrReplace({
+    _id: "settings",
+    _type: "settings",
+    title: info.title,
+    subtitle: info.subtitle,
+    heading: info.heading,
+    featuredWork: featured,
+    links: info.links.map((link, index) => ({
+      _key: `link${index}`,
+      _type: "link",
+      label: link._title,
+      url: link.link,
+    })),
+    email: info.email,
+    phone: info.phone,
+    address: info.address,
+  });
 
   console.log("CV & Press");
   transaction.createOrReplace({

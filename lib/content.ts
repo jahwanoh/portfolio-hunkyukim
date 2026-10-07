@@ -2,7 +2,12 @@
 // These helpers fetch it and shape it for the components.
 
 import { client } from "@/sanity/lib/client";
-import { cvQuery, exhibitionsQuery, settingsQuery } from "@/sanity/lib/queries";
+import {
+  cvQuery,
+  exhibitionsQuery,
+  featuredWorkQuery,
+  settingsQuery,
+} from "@/sanity/lib/queries";
 
 // Seconds before a page re-checks Sanity for changes
 const REVALIDATE = 60;
@@ -59,14 +64,16 @@ type RawImage = {
   lqip?: string | null;
 } | null;
 
-type RawArtwork = NonNullable<RawImage> & {
-  _key: string;
+type ArtworkFields = NonNullable<RawImage> & {
   title?: string | null;
   year?: string | null;
   medium?: string | null;
   dimensions?: string | null;
+};
+
+type RawArtwork = ArtworkFields & {
+  _key: string;
   cover?: boolean | null;
-  featured?: boolean | null;
 };
 
 type RawExhibition = {
@@ -87,7 +94,7 @@ type RawSection = {
 const fetchSanity = <T>(query: string) =>
   client.fetch<T>(query, {}, { next: { revalidate: REVALIDATE } });
 
-const toArtwork = (artwork: RawArtwork): ImageMedia => ({
+const toArtwork = (artwork: ArtworkFields): ImageMedia => ({
   url: artwork.url,
   width: artwork.width,
   height: artwork.height,
@@ -156,23 +163,20 @@ export async function getProjects(): Promise<Project[]> {
   return exhibitions.map(toProject);
 }
 
-// The work marked "featured" (newest exhibition first), else the first work
+// "Home featured work" from Site Settings; hidden on the home page when empty
 export async function getFeaturedWork(): Promise<
-  { media: ImageMedia; project: Project } | undefined
+  { media: ImageMedia; project?: Project } | undefined
 > {
-  const exhibitions = await fetchSanity<RawExhibition[]>(exhibitionsQuery);
+  const featured = await fetchSanity<
+    (ArtworkFields & { exhibition?: RawExhibition | null }) | null
+  >(featuredWorkQuery);
 
-  for (const exhibition of exhibitions) {
-    const featured = exhibition.artworks?.find((artwork) => artwork.featured);
-    if (featured) {
-      return { media: toArtwork(featured), project: toProject(exhibition) };
-    }
-  }
+  if (!featured?.url) return undefined;
 
-  const first = exhibitions.find((exhibition) => exhibition.artworks?.length);
-  return first
-    ? { media: toArtwork(first.artworks![0]), project: toProject(first) }
-    : undefined;
+  return {
+    media: toArtwork(featured),
+    project: featured.exhibition ? toProject(featured.exhibition) : undefined,
+  };
 }
 
 async function getCV() {

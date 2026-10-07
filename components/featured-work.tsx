@@ -4,7 +4,7 @@ import { TransitionTrigger } from "./transition-trigger";
 
 interface FeaturedWorkProps {
   media: ImageMedia;
-  project: Project;
+  project?: Project;
 }
 
 export function FeaturedWork({ media, project }: FeaturedWorkProps) {
@@ -12,11 +12,8 @@ export function FeaturedWork({ media, project }: FeaturedWorkProps) {
     .filter(Boolean)
     .join(", ");
 
-  return (
-    <TransitionTrigger
-      href={`/projects/${project._slug}`}
-      className="group block relative overflow-hidden bg-muted rounded-[6px] hover:rounded-[18px] transition-[border-radius] duration-300 ease-quad-out w-full cursor-pointer"
-    >
+  const content = (
+    <>
       <Media
         media={media}
         className="w-full h-auto transition-transform duration-500 ease-quad-out group-hover:scale-[1.025]"
@@ -34,6 +31,21 @@ export function FeaturedWork({ media, project }: FeaturedWorkProps) {
           </p>
         )}
       </div>
+    </>
+  );
+
+  const className =
+    "group block relative overflow-hidden bg-muted rounded-[6px] w-full";
+
+  // Links to its exhibition when one is chosen in Site Settings
+  return project ? (
+    <TransitionTrigger
+      href={`/projects/${project._slug}`}
+      className={`${className} hover:rounded-[18px] transition-[border-radius] duration-300 ease-quad-out cursor-pointer`}
+    >
+      {content}
     </TransitionTrigger>
+  ) : (
+    <div className={className}>{content}</div>
   );
 }

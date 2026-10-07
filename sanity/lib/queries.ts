@@ -8,7 +8,7 @@ const image = /* groq */ `
 `;
 
 const artwork = /* groq */ `
-  _key, title, year, medium, dimensions, cover, featured, ${image}
+  _key, title, year, medium, dimensions, cover, ${image}
 `;
 
 const exhibition = /* groq */ `
@@ -23,6 +23,17 @@ const exhibition = /* groq */ `
 
 export const settingsQuery = defineQuery(`
   *[_id == "settings"][0]{ title, subtitle, heading, links[]{ label, url }, email, phone, address }
+`);
+
+export const featuredWorkQuery = defineQuery(`
+  *[_id == "settings"][0].featuredWork{
+    title, year, medium, dimensions,
+    "url": image.asset->url,
+    "width": image.asset->metadata.dimensions.width,
+    "height": image.asset->metadata.dimensions.height,
+    "lqip": image.asset->metadata.lqip,
+    "exhibition": exhibition->{ ${exhibition} }
+  }
 `);
 
 export const exhibitionsQuery = defineQuery(`
